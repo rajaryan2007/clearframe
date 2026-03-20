@@ -128,3 +128,7 @@
     @apply font-sans;
   }
 }
+
+.animate-in, .animate-out {
+  animation-fill-mode: both !important;
+}
