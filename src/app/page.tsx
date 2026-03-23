@@ -1,7 +1,6 @@
 "use client"
 import LightRays from "@/components/LightRays";
-import { Divide } from "lucide-react";
-import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -35,22 +34,22 @@ export default function Home() {
           Experience the future of intelligent data processing.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-700">
-          <a 
+          <Link 
             href="/chat" 
-            className="px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+            className="px-12 py-5 bg-white text-black font-black rounded-full hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.3)] text-xl"
           >
             Start Exploring
-          </a>
-          <a 
-            href="/extenstion" 
-            className="px-8 py-4 bg-white/5 text-white font-semibold rounded-full border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:scale-105 transition-all duration-300"
+          </Link>
+          <Link 
+            href="/extension" 
+            className="px-12 py-5 bg-white/5 text-white font-black rounded-full border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:scale-105 transition-all duration-300 text-xl"
           >
             Get Extension
-          </a>
+          </Link>
         </div>
       </div>
 
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 blur-[120px] rounded-full -z-10 animate-pulse transition-all duration-5000" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 blur-[150px] rounded-full -z-10 animate-pulse transition-all duration-5000" />
     </div>
   );
 }

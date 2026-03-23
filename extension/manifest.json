@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "ClearFrame AI",
+  "version": "1.0",
+  "description": "Analyze text for manipulation, bias, and emotional influence with ClearFrame.",
+  "permissions": ["activeTab", "scripting", "contextMenus", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

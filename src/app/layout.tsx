@@ -18,30 +18,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { ClerkProvider } from "@clerk/nextjs";
+
 export const metadata: Metadata = {
   title: 'ClearFrame',
   description: 'INFORMATION EXTRACTOR',
 }
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", raleway.variable, jetbrainsMonoHeading.variable)}
-    >
-      <body className="min-h-full flex flex-col bg-black text-white selection:bg-primary/30">
-        <header className="fixed top-0 left-0 right-0 z-50 flex justify-center p-4">
-          <div className="w-full max-w-7xl bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl">
-             <Navbar/>
-          </div>
-        </header>
-        <main className="relative flex-grow">
-          {children}
-        </main>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html
+        lang="en"
+        className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", raleway.variable, jetbrainsMonoHeading.variable)}
+      >
+        <body className="min-h-full flex flex-col bg-black text-white selection:bg-primary/30">
+          <header className="fixed top-0 left-0 right-0 z-50 flex justify-center p-4">
+            <div className="w-full max-w-7xl bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl">
+              <Navbar />
+            </div>
+          </header>
+          <main className="relative flex-grow">
+            {children}
+          </main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
