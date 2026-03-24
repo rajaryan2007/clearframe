@@ -23,6 +23,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 export const metadata: Metadata = {
   title: 'ClearFrame',
   description: 'INFORMATION EXTRACTOR',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
