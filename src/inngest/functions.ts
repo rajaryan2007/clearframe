@@ -5,7 +5,7 @@ import {
   identifyMissingContext,
   generateNeutralRewrite,
   calculateManipulationScore
-} from "@/lib/gemini";
+} from "@/lib/groq";
 import dbConnect from "@/lib/db";
 import Analysis from "@/models/Analysis";
 
@@ -21,14 +21,14 @@ export const analyzeTextTask = inngest.createFunction(
 
 
     const results = await step.run("ai-extraction-batch", async () => {
-      console.time("Gemini Parallel Extraction");
+      console.time("Groq Parallel Extraction");
       const [emotions, bias, context, rewrite] = await Promise.all([
         detectEmotions(text),
         analyzeBias(text),
         identifyMissingContext(text),
         generateNeutralRewrite(text)
       ]);
-      console.timeEnd("Gemini Parallel Extraction");
+      console.timeEnd("Groq Parallel Extraction");
       return { emotions, bias, context, rewrite };
     });
 

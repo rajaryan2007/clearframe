@@ -1,15 +1,15 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL_NAME || "gemini-2.5-flash-lite" });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const model = process.env.GROQ_MODEL_NAME || "llama-3.3-70b-versatile";
 
 async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000): Promise<T> {
   try {
     return await fn();
   } catch (error: any) {
-    if (retries > 0 && (error.status === 503 || error.status === 429)) {
+    if (retries > 0 && (error.status === 429 || error.status === 503)) {
       const waitTime = error.status === 429 ? 30000 : delay;
-      console.warn(`Gemini Error ${error.status}. Retrying in ${waitTime}ms... (${retries} retries left)`);
+      console.warn(`Groq Error ${error.status}. Retrying in ${waitTime}ms... (${retries} retries left)`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
       return withRetry(fn, retries - 1, delay * 2);
     }
@@ -25,9 +25,20 @@ function extractJson(text: string) {
     }
     return JSON.parse(text);
   } catch (e) {
-    console.error("Failed to parse Gemini response:", text);
+    console.error("Failed to parse Groq response:", text);
     throw new Error("Invalid intelligence response format");
   }
+}
+
+async function generateResponse(prompt: string) {
+  const completion = await withRetry(() =>
+    groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: model,
+      response_format: { type: "json_object" },
+    })
+  );
+  return completion.choices[0]?.message?.content || "";
 }
 
 export async function detectEmotions(text: string) {
@@ -35,8 +46,8 @@ export async function detectEmotions(text: string) {
   Text: "${text}"
   JSON format: {"fear": 0.5, "anger": 0.2, "hope": 0.1, "sadness": 0.0}`;
 
-  const result = await withRetry(() => model.generateContent(prompt));
-  return extractJson(result.response.text());
+  const responseText = await generateResponse(prompt);
+  return extractJson(responseText);
 }
 
 export async function analyzeBias(text: string) {
@@ -44,17 +55,18 @@ export async function analyzeBias(text: string) {
   Text: "${text}"
   JSON format: {"direction": "left" | "right" | "neutral", "confidence": 0.8, "explanation": "string"}`;
 
-  const result = await withRetry(() => model.generateContent(prompt));
-  return extractJson(result.response.text());
+  const responseText = await generateResponse(prompt);
+  return extractJson(responseText);
 }
 
 export async function identifyMissingContext(text: string) {
-  const prompt = `Identify important missing facts, perspectives, or data that would give a more complete understanding. Return ONLY a valid JSON array of strings.
+  const prompt = `Identify important missing facts, perspectives, or data that would give a more complete understanding. Return ONLY a valid JSON object containing an array of strings under the key "missing_context".
   Text: "${text}"
-  JSON format: ["fact 1", "fact 2"]`;
+  JSON format: {"missing_context": ["fact 1", "fact 2"]}`;
 
-  const result = await withRetry(() => model.generateContent(prompt));
-  return extractJson(result.response.text());
+  const responseText = await generateResponse(prompt);
+  const json = extractJson(responseText);
+  return json.missing_context || [];
 }
 
 export async function generateNeutralRewrite(text: string) {
@@ -62,8 +74,8 @@ export async function generateNeutralRewrite(text: string) {
   Text: "${text}"
   JSON format: {"rewrite": "string"}`;
 
-  const result = await withRetry(() => model.generateContent(prompt));
-  const json = extractJson(result.response.text());
+  const responseText = await generateResponse(prompt);
+  const json = extractJson(responseText);
   return json.rewrite;
 }
 
@@ -71,7 +83,7 @@ export async function calculateManipulationScore(emotions: any, bias: any, conte
   const prompt = `Based on emotional intensity (${JSON.stringify(emotions)}), bias (${JSON.stringify(bias)}), and ${contextCount} missing points of context, generate a manipulation score from 0 to 100. Return ONLY a JSON object.
   JSON format: {"score": 75}`;
 
-  const result = await withRetry(() => model.generateContent(prompt));
-  const json = extractJson(result.response.text());
+  const responseText = await generateResponse(prompt);
+  const json = extractJson(responseText);
   return json.score;
 }
