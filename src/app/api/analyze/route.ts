@@ -1,10 +1,4 @@
-import { 
-  detectEmotions, 
-  analyzeBias, 
-  identifyMissingContext, 
-  generateNeutralRewrite, 
-  calculateManipulationScore 
-} from "@/lib/gemini";
+import { inngest } from "@/inngest/client";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -23,42 +17,23 @@ export async function OPTIONS(req: Request) {
 
 export async function POST(req: Request) {
   const origin = req.headers.get('origin');
+  const { userId } = await auth();
   const { text } = await req.json();
 
   if (!text) {
     return NextResponse.json({ error: "text is required" }, { status: 400 });
   }
 
-  try {
-    // Perform parallel AI analysis
-    const [emotions, bias, context, rewrite] = await Promise.all([
-      detectEmotions(text),
-      analyzeBias(text),
-      identifyMissingContext(text),
-      generateNeutralRewrite(text)
-    ]);
+  await inngest.send({
+    name: "app/analyze.text",
+    data: {
+      text,
+      userId: userId || "anonymous",
+    },
+  });
 
-    const score = await calculateManipulationScore(emotions, bias, context.length);
-
-    const result = {
-      emotions,
-      bias,
-      missing_context: context,
-      rewrite,
-      manipulation_score: score,
-    };
-
-    const response = NextResponse.json({ 
-      message: "Analysis complete",
-      input: text,
-      result 
-    });
-    
-    response.headers.set('Access-Control-Allow-Origin', origin || '*');
-    response.headers.set('Access-Control-Allow-Credentials', 'true');
-    return response;
-  } catch (error: any) {
-    console.error("Analysis failed:", error);
-    return NextResponse.json({ error: "Analysis failed. Please try again." }, { status: 500 });
-  }
+  const response = NextResponse.json({ message: "Analysis started" });
+  response.headers.set('Access-Control-Allow-Origin', origin || '*');
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
+  return response;
 }

@@ -15,12 +15,12 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
       return;
     }
 
-    const startTime = Date.now();
     document.getElementById('analyze-btn').disabled = true;
     document.getElementById('loading').style.display = 'block';
     document.getElementById('status').innerText = 'Analyzing with Gemini AI...';
     document.getElementById('result').style.display = 'none';
 
+    const startTime = Date.now();
     try {
       const baseUrl = 'https://clearframe-beige.vercel.app';
       const response = await fetch(`${baseUrl}/api/analyze`, {
@@ -35,22 +35,54 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
         throw new Error(errData.error || 'Check if you are logged in on the web app.');
       }
 
-      const data = await response.json();
-      
-      // Save to local storage
-      chrome.storage.local.get({ history: [] }, (result) => {
-        const history = result.history;
-        history.unshift({
-          input: selectedText,
-          result: data.result,
-          createdAt: new Date().toISOString()
-        });
-        // Keep only last 20
-        chrome.storage.local.set({ history: history.slice(0, 20) });
-      });
+      let attempts = 0;
+      const normalize = (t) => t.trim().replace(/\s+/g, ' ');
+      const normSelected = normalize(selectedText);
 
-      showResult(data);
-      loadLocalHistory(); // Refresh history list after saving new one
+      const poll = setInterval(async () => {
+        try {
+          attempts++;
+          const historyRes = await fetch(`${baseUrl}/api/history`, {
+            credentials: 'include'
+          });
+          
+          if (!historyRes.ok) return;
+
+          const historyData = await historyRes.json();
+          const latest = historyData.find(item => {
+            const itemTime = new Date(item.createdAt).getTime();
+            return itemTime > startTime - 10000 && 
+                   normalize(item.input) === normSelected;
+          });
+
+          if (latest) {
+            clearInterval(poll);
+            
+            // Save to local storage
+            chrome.storage.local.get({ history: [] }, (result) => {
+              const history = result.history;
+              history.unshift({
+                input: selectedText,
+                result: latest.result,
+                createdAt: latest.createdAt
+              });
+              chrome.storage.local.set({ history: history.slice(0, 20) });
+              loadLocalHistory();
+            });
+
+            showResult(latest);
+          }
+
+          if (attempts > 30) {
+            clearInterval(poll);
+            document.getElementById('status').innerText = 'Analysis timed out. Please check the Dashboard.';
+            document.getElementById('analyze-btn').disabled = false;
+            document.getElementById('loading').style.display = 'none';
+          }
+        } catch (pollError) {
+          console.error("Polling error:", pollError);
+        }
+      }, 3000);
 
     } catch (error) {
       document.getElementById('status').innerText = error.message;
