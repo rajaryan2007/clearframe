@@ -1,7 +1,20 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL_NAME || "gemini-3.1-flash-lite-preview" });
+const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL_NAME || "gemini-2.5-flash" });
+
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 2000): Promise<T> {
+  try {
+    return await fn();
+  } catch (error: any) {
+    if (retries > 0 && error.status === 503) {
+      console.warn(`Gemini 503 Service Unavailable. Retrying in ${delay}ms... (${retries} retries left)`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return withRetry(fn, retries - 1, delay * 2);
+    }
+    throw error;
+  }
+}
 
 function extractJson(text: string) {
   try {
@@ -21,7 +34,7 @@ export async function detectEmotions(text: string) {
   Text: "${text}"
   JSON format: {"fear": 0.5, "anger": 0.2, "hope": 0.1, "sadness": 0.0}`;
   
-  const result = await model.generateContent(prompt);
+  const result = await withRetry(() => model.generateContent(prompt));
   return extractJson(result.response.text());
 }
 
@@ -30,7 +43,7 @@ export async function analyzeBias(text: string) {
   Text: "${text}"
   JSON format: {"direction": "left" | "right" | "neutral", "confidence": 0.8, "explanation": "string"}`;
   
-  const result = await model.generateContent(prompt);
+  const result = await withRetry(() => model.generateContent(prompt));
   return extractJson(result.response.text());
 }
 
@@ -39,7 +52,7 @@ export async function identifyMissingContext(text: string) {
   Text: "${text}"
   JSON format: ["fact 1", "fact 2"]`;
   
-  const result = await model.generateContent(prompt);
+  const result = await withRetry(() => model.generateContent(prompt));
   return extractJson(result.response.text());
 }
 
@@ -48,7 +61,7 @@ export async function generateNeutralRewrite(text: string) {
   Text: "${text}"
   JSON format: {"rewrite": "string"}`;
   
-  const result = await model.generateContent(prompt);
+  const result = await withRetry(() => model.generateContent(prompt));
   const json = extractJson(result.response.text());
   return json.rewrite;
 }
@@ -57,7 +70,7 @@ export async function calculateManipulationScore(emotions: any, bias: any, conte
   const prompt = `Based on emotional intensity (${JSON.stringify(emotions)}), bias (${JSON.stringify(bias)}), and ${contextCount} missing points of context, generate a manipulation score from 0 to 100. Return ONLY a JSON object.
   JSON format: {"score": 75}`;
   
-  const result = await model.generateContent(prompt);
+  const result = await withRetry(() => model.generateContent(prompt));
   const json = extractJson(result.response.text());
   return json.score;
 }

@@ -4,7 +4,7 @@
   "version": "1.0",
   "description": "Analyze text for manipulation, bias, and emotional influence with ClearFrame.",
   "permissions": ["activeTab", "scripting", "contextMenus", "storage"],
-  "host_permissions": ["http://localhost:3000/*"],
+  "host_permissions": ["https://clearframe-beige.vercel.app/*"],
   "background": {
     "service_worker": "background.js"
   },

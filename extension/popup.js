@@ -19,7 +19,7 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
 
     try {
 
-      const baseUrl = 'http://localhost:3000';
+      const baseUrl = 'https://clearframe-beige.vercel.app';
       const response = await fetch(`${baseUrl}/api/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -33,7 +33,7 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
       let attempts = 0;
       const poll = setInterval(async () => {
         attempts++;
-        const historyRes = await fetch('http://localhost:3000/api/history', {
+        const historyRes = await fetch('https://clearframe-beige.vercel.app/api/history', {
           credentials: 'include'
         });
         const historyData = await historyRes.json();
