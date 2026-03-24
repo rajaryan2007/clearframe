@@ -62,8 +62,8 @@ export default function ExtensionPage() {
                     </div>
 
                     <div className="pt-4 flex flex-col items-center gap-6">
-                        <a 
-                            href="https://github.com/rajaryan2007/clearframe/archive/refs/heads/main.zip" 
+                        <a
+                            href="https://github.com/rajaryan2007/clearframe/releases/tag/clearframe"
                             className="bg-white text-black hover:bg-zinc-200 rounded-2xl px-12 py-5 text-lg font-black transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl flex items-center gap-3"
                         >
                             <Download size={20} />
