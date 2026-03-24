@@ -6,7 +6,7 @@ ClearFrame is a modern, intelligent data processing platform designed to extract
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
 ### <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Intelligent Text Analysis
 Leverage state-of-the-art LLMs (Groq/Gemini) to perform multi-dimensional analysis:
@@ -25,7 +25,7 @@ Powered by Tesseract.js, ClearFrame can extract text from images and documents, 
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Frontend**: [Next.js 15+](https://nextjs.org), [Tailwind CSS 4](https://tailwindcss.com), [Radix UI](https://www.radix-ui.com)
 - **Backend**: [Inngest](https://www.inngest.com) (Serverless Workflows), [MongoDB](https://www.mongodb.com) (Mongoose)
@@ -35,7 +35,7 @@ Powered by Tesseract.js, ClearFrame can extract text from images and documents, 
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -93,7 +93,7 @@ The ClearFrame extension allows you to analyze text directly from any website.
 
 ---
 
-## 📄 License
+##  License
 
 This project is private and for demonstration purposes. Contact the owner for usage rights.
 
