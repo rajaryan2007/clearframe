@@ -27,35 +27,73 @@
     }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     #result {
-      background: #18181b;
-      padding: 12px;
-      border-radius: 8px;
+      background: #09090b;
+      padding: 16px;
+      border-radius: 12px;
       font-size: 13px;
       line-height: 1.5;
       display: none;
       border: 1px solid #27272a;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
     }
-    .loader {
-      border: 2px solid #27272a;
-      border-top: 2px solid #10b981;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      animation: spin 1s linear infinite;
-      display: none;
+    .section-label {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #71717a;
+      margin-bottom: 8px;
+      margin-top: 16px;
     }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .score-badge {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: bold;
+    .section-label:first-child { margin-top: 0; }
+    
+    .emotion-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .emo-bar {
+      height: 4px;
+      background: #27272a;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .emo-fill { height: 100%; transition: width 1s; }
+    
+    .context-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
       font-size: 11px;
-      margin-top: 8px;
+      color: #a1a1aa;
     }
-    .high { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
-    .med { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
-    .low { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .context-list li {
+      margin-bottom: 4px;
+      padding-left: 12px;
+      position: relative;
+    }
+    .context-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 4px;
+      height: 4px;
+      background: #10b981;
+      border-radius: 50%;
+      opacity: 0.5;
+    }
+
+    .rewrite-box {
+      background: rgba(16, 185, 129, 0.03);
+      border: 1px solid rgba(16, 185, 129, 0.1);
+      padding: 10px;
+      border-radius: 8px;
+      font-style: italic;
+      color: #d1d1d6;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -64,12 +102,41 @@
     <div class="status" id="status">Select text on page and click analyze.</div>
     <div id="loading" class="loader"></div>
     <button id="analyze-btn" class="btn">Analyze Selection</button>
+    
     <div id="result">
       <div id="score-val"></div>
-      <div id="bias-val" style="margin-top: 8px; opacity: 0.8;"></div>
-      <hr style="border: 0; border-top: 1px solid #27272a; margin: 12px 0;">
-      <div id="summary-val"></div>
-      <a href="http://localhost:3000" target="_blank" style="display: block; margin-top: 12px; color: #10b981; font-size: 11px; text-decoration: none;">View full report →</a>
+      
+      <div class="section-label">Bias Vector</div>
+      <div id="bias-val" style="font-weight: 700; color: white;"></div>
+      <div id="summary-val" style="font-size: 11px; color: #71717a; margin-top: 4px;"></div>
+
+      <div class="section-label">Sentiment Resonance</div>
+      <div class="emotion-grid">
+        <div>
+          <span style="font-size: 10px;">Fear</span>
+          <div class="emo-bar"><div id="fear-fill" class="emo-fill" style="background: #a855f7;"></div></div>
+        </div>
+        <div>
+          <span style="font-size: 10px;">Anger</span>
+          <div class="emo-bar"><div id="anger-fill" class="emo-fill" style="background: #ef4444;"></div></div>
+        </div>
+        <div>
+          <span style="font-size: 10px;">Hope</span>
+          <div class="emo-bar"><div id="hope-fill" class="emo-fill" style="background: #10b981;"></div></div>
+        </div>
+        <div>
+          <span style="font-size: 10px;">Sadness</span>
+          <div class="emo-bar"><div id="sadness-fill" class="emo-fill" style="background: #3b82f6;"></div></div>
+        </div>
+      </div>
+
+      <div class="section-label">Missing Perspectives</div>
+      <ul id="context-list" class="context-list"></ul>
+
+      <div class="section-label">Objective Reconstruction</div>
+      <div id="rewrite-val" class="rewrite-box"></div>
+
+      <a href="http://localhost:3000" target="_blank" style="display: block; margin-top: 16px; color: #10b981; font-size: 10px; text-decoration: none; text-align: center; font-weight: bold; opacity: 0.6;">DASHBOARD →</a>
     </div>
   </div>
   <script src="popup.js"></script>

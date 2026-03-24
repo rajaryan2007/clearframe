@@ -34,7 +34,7 @@ export default function ChatPage() {
   const startAnalysis = async (text: string) => {
     setIsAnalyzing(true)
 
-    // Add temporary bot message while analyzing
+
     const botMessageId = messages.length + 1
     setMessages(prev => [...prev, {
       role: 'bot',
@@ -50,12 +50,12 @@ export default function ChatPage() {
 
       if (!res.ok) throw new Error('Failed to start analysis')
 
-      // Polling for the result
+
       const interval = setInterval(async () => {
         const historyRes = await fetch('/api/history')
         const historyData = await historyRes.json()
 
-        const latest = historyData.find((item: any) => item.input === text)
+        const latest = historyData.find((item: any) => item.input.trim() === text.trim())
         if (latest) {
           clearInterval(interval)
           setMessages(prev => {
@@ -85,8 +85,7 @@ export default function ChatPage() {
 
     let textToAnalyze = input
 
-    // If image but no text, we'll try OCR first if it was just an image upload
-    // But for now let's assume the user might have used OCR to fill the input
+
 
     const newMessage: Message = {
       role: 'user',
@@ -101,7 +100,7 @@ export default function ChatPage() {
     if (textToAnalyze.trim()) {
       await startAnalysis(textToAnalyze)
     } else if (image) {
-      // Small delay if only image
+
       setMessages(prev => [...prev, {
         role: 'bot',
         content: "I've received your image. Please provide some text to analyze, or use the OCR feature to extract text from the image."
@@ -173,7 +172,7 @@ export default function ChatPage() {
                 <div className="relative group p-6 rounded-2xl border border-white/[0.01] hover:border-white/5 transition-all duration-700">
                   <div className="absolute inset-0 bg-white/[0.02] blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                   <div className="relative w-12 h-12 flex items-center justify-center bg-black border border-[#333] rounded-xl mb-4 mx-auto group-hover:scale-110 transition-transform duration-500">
-                     <div className="w-4 h-4 border-2 border-white/20 rounded-sm" />
+                    <div className="w-4 h-4 border-2 border-white/20 rounded-sm" />
                   </div>
                   <h2 className="text-xl font-bold tracking-tight text-white/40 italic">
                     How can I <span className="text-white/80">clear the frame?</span>
@@ -198,7 +197,7 @@ export default function ChatPage() {
                     )}>
                       {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                     </div>
- 
+
                     <div className={cn(
                       "flex flex-col gap-2 max-w-[80%]",
                       msg.role === 'user' ? "items-end" : "items-start"
@@ -223,7 +222,7 @@ export default function ChatPage() {
                       </div>
                     </div>
                   </div>
- 
+
                   {msg.analysisResult && (
                     <div className="w-full mt-2 pl-12">
                       <AnalysisResult result={msg.analysisResult} />
@@ -235,7 +234,7 @@ export default function ChatPage() {
             <div ref={scrollEndRef} className="h-4" />
           </div>
         </div>
- 
+
         {/* Refined Minimalist Input Area */}
         <div className="w-full px-6 pb-6 mt-auto">
           <div className="max-w-[800px] mx-auto relative group">
@@ -252,20 +251,20 @@ export default function ChatPage() {
                 </div>
               </div>
             )}
- 
+
             <div className="relative flex items-end bg-[#141414] border border-[#333] rounded-xl overflow-hidden focus-within:border-white/20 focus-within:ring-1 focus-within:ring-white/10 transition-all duration-300 shadow-2xl">
               <div className="p-3 flex items-center">
-                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
-                 <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-lg w-9 h-9 text-zinc-600 hover:text-white hover:bg-white/5 transition-all"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Plus size={18} />
-                  </Button>
+                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-lg w-9 h-9 text-zinc-600 hover:text-white hover:bg-white/5 transition-all"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Plus size={18} />
+                </Button>
               </div>
- 
+
               <Textarea
                 placeholder="Ask ClearFrame anything..."
                 value={input}
@@ -278,7 +277,7 @@ export default function ChatPage() {
                   }
                 }}
               />
-              
+
               <div className="p-3 flex items-center">
                 <Button
                   size="icon"
@@ -286,8 +285,8 @@ export default function ChatPage() {
                   disabled={(!input.trim() && !image) || isAnalyzing}
                   className={cn(
                     "rounded-lg w-9 h-9 transition-all duration-300 border border-transparent",
-                    (input.trim() || image) && !isAnalyzing 
-                      ? "bg-white text-black hover:scale-105" 
+                    (input.trim() || image) && !isAnalyzing
+                      ? "bg-white text-black hover:scale-105"
                       : "bg-white/[0.02] text-zinc-800"
                   )}
                 >
@@ -297,7 +296,7 @@ export default function ChatPage() {
             </div>
           </div>
           <p className="text-[8px] text-center text-zinc-800 mt-4 font-black tracking-[0.3em] uppercase opacity-30">
-             Extraction Protocol v7.2
+            Extraction Protocol v7.2
           </p>
         </div>
       </div>

@@ -23,7 +23,7 @@ export interface IAnalysis extends Document {
 }
 
 const AnalysisSchema = new Schema<IAnalysis>({
-  userId: { type: String, required: true },
+  userId: { type: String, required: false },
   input: { type: String, required: true },
   result: {
     emotions: {

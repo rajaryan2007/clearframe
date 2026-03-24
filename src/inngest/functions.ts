@@ -1,25 +1,25 @@
 import { inngest } from "./client";
-import { 
-  detectEmotions, 
-  analyzeBias, 
-  identifyMissingContext, 
-  generateNeutralRewrite, 
-  calculateManipulationScore 
+import {
+  detectEmotions,
+  analyzeBias,
+  identifyMissingContext,
+  generateNeutralRewrite,
+  calculateManipulationScore
 } from "@/lib/gemini";
 import dbConnect from "@/lib/db";
 import Analysis from "@/models/Analysis";
 
 export const analyzeTextTask = inngest.createFunction(
-  { 
-    id: "clearframe-analyze", 
+  {
+    id: "clearframe-analyze",
     name: "ClearFrame Analysis Task",
-    triggers: [{ event: "app/analyze.text" }] 
+    triggers: [{ event: "app/analyze.text" }]
   },
   async ({ event, step }) => {
     const { text, userId } = event.data;
     console.log("Inngest function triggered for text:", text.substring(0, 50) + "...");
 
-    // Run AI steps in a single parallel batch step to avoid step conflicts
+
     const results = await step.run("ai-extraction-batch", async () => {
       console.time("Gemini Parallel Extraction");
       const [emotions, bias, context, rewrite] = await Promise.all([
@@ -34,7 +34,7 @@ export const analyzeTextTask = inngest.createFunction(
 
     const { emotions, bias, context, rewrite } = results;
 
-    // Calculate score based on results
+
     const score = await step.run("calculate-score", async () => {
       return await calculateManipulationScore(emotions, bias, context.length);
     });
@@ -49,18 +49,16 @@ export const analyzeTextTask = inngest.createFunction(
 
     console.log("Final Result Prepared:", result);
 
-    if (userId) {
-      await step.run("save-to-db", async () => {
-        console.log("Syncing to MongoDB...");
-        await dbConnect();
-        const saved = await Analysis.create({
-          userId,
-          input: text,
-          result,
-        });
-        return { success: true, id: saved._id };
+    await step.run("save-to-db", async () => {
+      console.log("Syncing to MongoDB...");
+      await dbConnect();
+      const saved = await Analysis.create({
+        userId: userId || "anonymous",
+        input: text,
+        result,
       });
-    }
+      return { success: true, id: saved._id };
+    });
 
     return result;
   }
