@@ -19,8 +19,8 @@ export async function OPTIONS(req: Request) {
 export async function GET(req: Request) {
   const origin = req.headers.get('origin');
   const { userId } = await auth();
-  
-  // If not logged in, we fetch anonymous history (often from the extension)
+
+
   const filter = userId ? { userId } : { userId: "anonymous" };
 
   await dbConnect();
